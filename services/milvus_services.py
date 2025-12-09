@@ -18,8 +18,8 @@ schema = CollectionSchema(
     description="Collection for storing text embeddings",
 )
 
-# milvus_client = MilvusClient(uri=os.getenv("ZILLIS_URI_ENDPOINT"), token=os.getenv("ZILLIS_TOKEN"), password=os.getenv("ZILLIS_PASSWORD"), db_name=os.getenv("ZILLIS_DB_NAME"))
-milvus_client = MilvusClient(uri=os.getenv("MILVUS_URI"), db_name=os.getenv("MILVUS_DB_NAME"))
+milvus_client = MilvusClient(uri=os.getenv("ZILLIS_URI_ENDPOINT"), token=os.getenv("ZILLIS_TOKEN"), password=os.getenv("ZILLIS_PASSWORD"), db_name=os.getenv("ZILLIS_DB_NAME"))
+# milvus_client = MilvusClient(uri=os.getenv("MILVUS_URI"), db_name=os.getenv("MILVUS_DB_NAME"))
 def create_collection(collection: str) -> dict:
     index_params = milvus_client.prepare_index_params()
 
