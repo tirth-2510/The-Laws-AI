@@ -18,8 +18,8 @@ schema = CollectionSchema(
     description="Collection for storing text embeddings",
 )
 
-milvus_client = MilvusClient(uri=os.getenv("ZILLIS_URI_ENDPOINT"), token=os.getenv("ZILLIS_TOKEN"), password=os.getenv("ZILLIS_PASSWORD"), db_name=os.getenv("ZILLIS_DB_NAME"))
-
+# milvus_client = MilvusClient(uri=os.getenv("ZILLIS_URI_ENDPOINT"), token=os.getenv("ZILLIS_TOKEN"), password=os.getenv("ZILLIS_PASSWORD"), db_name=os.getenv("ZILLIS_DB_NAME"))
+milvus_client = MilvusClient(uri=os.getenv("MILVUS_URI"), db_name=os.getenv("MILVUS_DB_NAME"))
 def create_collection(collection: str) -> dict:
     index_params = milvus_client.prepare_index_params()
 
@@ -69,16 +69,16 @@ def insert(collection: str, file_name: str,  file_type: str, file) -> dict | Non
     print("Response from Milvus:", response)
     return response if response else None
 
-def search(query: str,collection:str,list:bool) -> str:
+def search(query: str, collection:str, radius:float) -> str:
     search_query = search_embeddings(query=query)
 
     search_params = {
         "field_name":"vector", 
         "index_type":"HNSW",
         "metric_type":"COSINE",
-        "efConstruction":256,
-        "M":64,
-        "radius": 0.6
+        "ef":512,
+        "M":80,
+        "radius": radius
     }
     context=""
     
@@ -86,7 +86,6 @@ def search(query: str,collection:str,list:bool) -> str:
         collection_name=collection, 
         data=[search_query], 
         search_params=search_params,
-        filter="not id like '%_@_0'",
         limit=5, 
         output_fields=["text", "id"]
     )[0]
@@ -95,8 +94,8 @@ def search(query: str,collection:str,list:bool) -> str:
         for doc in documents:
             data=doc.get("entity",doc)
             print(f"Id: {data.get('id')}\nDistance: {doc.get('distance')}\nContent: {data.get('text')}\n")
-            context+= f"Content: {data.get('text')}\n"
-
+            context+= f"\nContext: {data.get('text')}\n"
+ 
     if context:
         return context 
     else:

@@ -1,5 +1,6 @@
 from langchain_core.tools import tool
 
+
 @tool
 def judgement(query:str):
     '''
@@ -21,7 +22,7 @@ def judgement(query:str):
     - Central Acts (e.g., IPC, Companies Act, IT Act, GST Act)
     - State-specific Acts
     - Explanations of legal sections
-    - Court orders
+    - Court orders(Any kind of court orders)
     - Procedural rules governing civil litigation
     - Legal effects, conditions, or procedural steps under CPC Orders
 
@@ -40,7 +41,7 @@ def judgement(query:str):
     - "Provide me the latest judgments of Gujarat Hight court on Land Grabing"
         
     '''
-    pass
+    pass 
 
 @tool
 def act(query:str):
@@ -68,7 +69,6 @@ def act(query:str):
     - Supreme Court judgments
     - High Court judgments
     - Any Court Judgements
-
     Example Queries:
     -     "Suit can withdraw at any time as per the order 23 rule 1"
     -     "when the prima facie the provisions of sc/st (poa) not applicable, the petition for anticipatory bail maintainable"
@@ -83,46 +83,44 @@ def act(query:str):
 
 @tool
 def order(query: str):
+
     """
-    Use this tool to fetch, explain court orders,
+    Use this tool to identify, classify, and explain court orders.
 
     Purpose:
-    - To assist in interpreting provisions, procedural requirements, and legal effects of interim or final court orders.
-    - To provide summaries or plain-language explanations of CPC Orders and Rules.
+    - To determine what type of order has been passed (e.g., oral order, interim order, final order,
+      procedural order, administrative direction, etc.).
+    - To explain the legal nature, procedural effect, and consequences of orders passed under CPC,
+      CrPC, High Court Rules, or other procedural frameworks.
+    - To provide plain-language summaries of interim or final judicial orders.
+    - To clarify whether an order falls under Civil Procedure Code (CPC) or Criminal Procedure Code (CrPC).
 
     Trigger Conditions:
     - Call this tool whenever the user asks about:
-        * Court orders
-        * Procedural rules governing civil litigation
-        * Legal effects, conditions, or procedural steps under CPC Orders
+        * The “type” or “classification” of any court order.
+        * Whether an order is CPC, CrPC, or general High Court administrative order.
+        * Meaning of expressions in orders (e.g., "Rule discharged", "Dismissed", "Allowed").
+        * Effect of an oral order or short order passed by any court.
+        * Procedural implications of interim or final orders.
+
+    Non-Trigger Conditions (Do NOT call this tool for the following):
+    - Detailed analysis of case law, judgments, or precedents.
+    - Interpretation of statutory sections of Acts (IPC, Evidence Act, GST Act, etc.).
+    - Summary or review of Supreme Court / High Court judgments.
+    - Legal advice requiring application of precedent rather than explanation of the order itself.
     
-    Non-Trigger Condition: Queries About Following
-    - Court Judgement (Supreme Court, High Court, or Tribunal decisions)
-    - Central or State Acts (e.g., IPC, Evidence Act, GST Act)
-    - Explanations of statutory sections
-    - Case law summaries or precedent-based analysis
-
-
     Example Queries:
-    -      "Under what circumstances can a party be added to a suit under Order 1 Rule 10 CPC?"
-    -      "What is the effect of non-joinder of claims under Order 2 Rule 2 CPC?"
-    -      "What are the modes of service of summons under Order 5 CPC?"
-    -      "What is the difference between material facts and evidence as per Order 6 Rule 2 CPC?"
-    -      "When can a plaint be rejected under Order 7 Rule 11 CPC?"
-    -      "What is the time limit for filing a written statement under Order 8 Rule 1 CPC?"
-    -      "What remedies are available when the defendant does not appear under Order 9 CPC?"
-    -      "What is the evidentiary value of admissions under Order 12 Rule 6 CPC?"
-    -      "Differentiate between issues of law and issues of fact under Order 14 CPC."
-    -      "Under what circumstances can adjournments be granted under Order 17 CPC?"
-    -      "What are the modes of execution of decrees under Order 21 CPC?"
-    -      "What is the effect of the death of a party during a suit under Order 22 CPC?"
-    -      "What is the difference between withdrawal of suit with and without permission under Order 23 CPC?"
-    -      "What are the grounds for granting a temporary injunction under Order 39 CPC?"
-    -      "What powers does an appellate court have under Order 41 Rule 33 CPC?"
+    - "Which type of order is this? It only says 'Dismissed. Rule discharged.'"  
+    - "Is this order passed under CPC or CrPC?"
+    - "What is the meaning of an oral order from the High Court?"
+    - "Does this order count as a final order or interim order?"
+    - "What is the effect of 'Rule made returnable' in an order?"
+    - "What does it mean when a court says 'Notice discharged'?"
+    - "Is this order a decreee,judgement, or procedural order?"
+    - "Does this order fall under Order 39 CPC or CrPC 482?"
 
     """
     pass
-
 
 @tool
 def list_response(query:str):
@@ -133,7 +131,7 @@ def list_response(query:str):
     Trigger Condition:
     - Invoke this tool when the user clearly asks for a list of legal information 
     (e.g., acts, sections, or cases).
-
+ 
     Non-Trigger Condition:
 
     - Do not invoke this tool if the user's query is vague, underspecified, or 
@@ -151,51 +149,52 @@ def list_response(query:str):
 @tool 
 def followup_handler(query:str):
     '''
-    -  This tool is designed to resturcture the vague or underspecified follow-up query. If the query is identified as a follow-up, 
-    the tool evaluates whether it is vague or underspecified. In cases where the 
-    query lacks clarity, context, or explicit details, the tool restructures and 
-    rephrases the query into a clearer and more explicit form that is easier for 
-    the LLM to understand and respond to accurately.
+    -  This tool is designed to resturcture the vague or underspecified follow-up query.
+    If the query is identified as a follow-up,the tool evaluates whether it is vague or 
+    underspecified. In cases where the query lacks clarity, context, or explicit details, 
+    the tool restructures and rephrases the query into a clearer and more explicit form 
+    that is easier for the LLM to understand and respond to accurately.
 
     Key responsibilities:
     - Detect if the query is a follow-up question.
     - Identify vague, incomplete, or ambiguous queries.
-    - Restructure vague follow-up queries into well-formed, self-contained prompts.
+    - Restructure vague follow-up queries into well-formed, self-contained and detailed queries like shown in example.
 
     Intended use:
     - To improve conversational continuity and reduce ambiguity.
     - To ensure the LLM receives clear, structured inputs, leading to 
-      more accurate and context-aware responses.
+      more accurate and context-aware responses
 
-    
+       
     Example:
     ---
-
-    User: "What does the Indian Contract Act, 1872 say about minors entering contracts?"
-    Assistant: "It states that contracts with minors are void from the beginning"
-    User: "What about exceptions?"
-    Tool → Restructured: "What are the exceptions to the rule that contracts with minors are void under the Indian Contract Act, 1872?"
-
-    ---
-
-    User: "Explain the doctrine of precedent in common law."
-    Assistant: "It means courts must follow previous judicial decisions when deciding similar cases."
-    User: "And in India?"
-    Tool → Restructured: "How does the doctrine of precedent apply within the Indian legal system?"
+      
+    --
+    - User: "What does the Indian Contract Act, 1872 say about minors entering contracts?"
+    - Assistant: "It states that contracts with minors are void from the beginning"
+    - User: "What about exceptions?"
+    - Tool → Restructured: "What are the exceptions to the rule that contracts with minors are void under the Indian Contract Act, 1872?"
 
     ---
 
-    User: "Tell me about Article 21 of the Indian Constitution."
-    Assistant: "Article 21 guarantees the right to life and personal liberty."
-    User: "What about its recent interpretation?"
-    Tool → Restructured: "What is the recent judicial interpretation of Article 21 of the Indian Constitution?"
+    - User: "Explain the doctrine of precedent in common law."
+    - Assistant: "It means courts must follow previous judicial decisions when deciding similar cases."
+    - User: "And in India?"
+    - Tool → Restructured: "How does the doctrine of precedent apply within the Indian legal system?"
+
+    --- 
+
+    - User: "Tell me about Article 21 of the Indian Constitution."
+    - Assistant: "Article 21 guarantees the right to life and personal liberty."
+    - User: "What about its recent interpretation?"
+    - Tool → Restructured: "What is the recent judicial interpretation of Article 21 of the Indian Constitution?"
 
     ---
 
-    User: "What is intellectual property?"
-    Assistant: "It refers to creations of the mind, like inventions, literary works, and symbols."
-    User: "Can you explain more?"
-    Tool → Restructured: "Can you explain in more detail the different types of intellectual property rights?"
+    - User: "What is intellectual property?"
+    - Assistant: "It refers to creations of the mind, like inventions, literary works, and symbols."
+    - User: "Can you explain more?"
+    - Tool → Restructured: "Can you explain in more detail the different types of intellectual property rights?"
    
     '''
     pass
