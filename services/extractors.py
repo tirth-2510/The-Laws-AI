@@ -97,41 +97,89 @@ def pdf_to_json(file):
 
 
 def get_judgement_metadata(content:dict):
-     Title=content.get("Title")
-     Country=content.get("Country",{}).get("Name")
-     Court_Name=content.get("Court",{}).get("Name")
-     Court_Type=content.get("Court",{}).get("Type")
-     Date=content.get("JudgmentDate")
-     if(content.get("Appellants",[])):
-        Appellants=content.get("Appellants",[])[0]
-     else:
-         Appellants=""
-     if(content.get("Respondants",[])):
-        Respondants=content.get("Respondants",[])[0]
-     else:
-         Respondants=""
-     if(content.get("Advocates",[])):
-        Advocates=content.get("Advocates",[])[0]
-     else:
-         Advocates=""
-     if(content.get("Judges",[])):
-        Judges=content.get("Judges",[])[0]
-     else:
-         Judges=""
-     AppealType=content.get("AppealType")
-     FinalVerdict=content.get("FinalVerdict")
+    Title=content.get("Title")
+    Country=content.get("Country",{}).get("Name")
+    Court_Name=content.get("Court",{}).get("Name")
+    Court_Type=content.get("Court",{}).get("Type")
+    Date=content.get("JudgmentDate")
+    isoverruled=content.get("IsOverRuled")
+    Bench=content.get("Bench")
+    judgebench=content.get("JudgeBench")
+    references = content.get("References", [])
+    reference_text = ""
+    if references:
+        reference_lines = []
+        for ref in references:
+            ref_title = ref.get("Title", "")
+            ref_citation = ref.get("Citation", "")
+            ref_case_type = ref.get("CaseType", "")
 
-     return f"""Title: {Title},
-     Country: {Country},
-     Court Name: {Court_Name},
-     Court Type: {Court_Type},
-     Judgement Date: {Date},
-     Appellants: {Appellants},
-     Respondants: {Respondants},
-     Advocates: {Advocates},
-     Judges: {Judges},
-     AppealType: {AppealType},
-     Final Verdict: {FinalVerdict}"""
+            reference_lines.append(
+                f"\n\t{ref_title}\n\tCitation: {ref_citation}\n\tCaseType: {ref_case_type}"
+            )
+        reference_text = "\n".join(reference_lines)
+    act_references = content.get("ActReferrences", [])
+    act_text = ""
+    if act_references:
+        act_lines = []
+        for act in act_references:
+            act_name = act.get("Act", "")
+            sections = act.get("Sections", [])
+
+            for sec in sections:
+                section = sec.get("Section", "")
+                section_title = sec.get("Title", "")
+
+                act_lines.append(
+                    f"\n\t{act_name}\n\tSection: {section}\n\tSection Title: {section_title}"
+                )
+
+        act_text = "\n".join(act_lines)
+    Judges=""
+    Advocates=""
+    Respondants=""
+    Appellants=""
+    if(content.get("Appellants",[])):
+        appell=content.get("Appellants")
+        Appellants=", ".join(appell)  
+    else:
+        Appellants=""
+    if(content.get("Respondants",[])):
+        Respond=content.get("Respondants",[])
+        Respondants=", ".join(Respond)
+    else:
+        Respondants=""
+    if(content.get("Advocates",[])):
+        advocate=content.get("Advocates",[])
+        Advocates= ", ".join(advocate)
+    else:
+        Advocates=""
+    if(content.get("Judges",[])):
+        Judge=content.get("Judges",[])
+        Judges=", ".join(Judge)
+    else:
+        Judges=""
+    deliveringjudge=content.get("DeliveringJudges")
+    AppealType=content.get("AppealType")
+    FinalVerdict=content.get("FinalVerdict")
+
+    return f"""Title: {Title},
+Country: {Country},
+Court Name: {Court_Name},
+Court Type: {Court_Type},
+Judgement Date: {Date},
+Is Over Ruled:{isoverruled},
+Bench:{Bench},
+Judge Bench:{judgebench}\n
+References:{reference_text}\n
+Act References:{act_text}\n
+Appellants: {Appellants},
+Respondants: {Respondants},
+Advocates: {Advocates},
+Judges: {Judges},
+Delivering Judge:{deliveringjudge},
+AppealType: {AppealType},
+Final Verdict: {FinalVerdict}"""
 
 def judgement_extractor(file):
     file_bytes = file.file.read()
