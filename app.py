@@ -66,7 +66,7 @@ async def chat(request: dict =  Body(...)):
     # {query}
     # """
     # try:
-        # intent_prompt = {"role" : "human" , "content" : prompt}
+        # intent_prompt = {"role" : "user" , "content" : prompt}
         # chat_history.append(intent_prompt)
         # res=tool_llama.invoke(input=chat_history)
         # initial_token=res.usage_metadata["total_tokens"]
@@ -94,7 +94,7 @@ async def chat(request: dict =  Body(...)):
     Query:  
     {query}
     """
-    toolprompt={"role":"human","content":listprompt}
+    toolprompt={"role":"user","content":listprompt}
     chat_history.append(toolprompt)
     listres=listtool.invoke(input=chat_history)
     chat_history.pop()

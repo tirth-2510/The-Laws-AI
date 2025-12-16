@@ -20,14 +20,37 @@ def extractor(file, type: str, category: str):
             raise HTTPException(detail="Unsupported file format!!!", status_code=400)
 
 # <----- ORDER EXTRACTOR ----->
+def clean_repeated_noise(text: str) -> str:
+    noise_patterns = [
+        r"Downloaded on\s*:\s*.*",
+        r"\bNEUTRAL\s+CITATION\b",
+        r"\bundefined\b",
+        r"CR\.MA\/\d+\/\d+\s+\d+\/\d+\s+JUDGMENT",
+    ]
+
+    for pattern in noise_patterns:
+        text = re.sub(pattern, "", text, flags=re.IGNORECASE)
+    text = re.sub(r"\n=+\n", "\n", text)
+    text = re.sub(r"\n{3,}", "\n\n", text)
+    return text.strip()
+
+
 def cleanup_order_text(text: str):
-    outcomes = re.split("=.+=", text)
-    # Main Content
-    main_content = outcomes[-1]
-    metadatas = "\n".join(outcomes[:-1])
-    pos=metadatas.find("undefined")
-    metadatas= metadatas[pos +len("undefined")+1:]
-    return metadatas,main_content
+    text = clean_repeated_noise(text)
+    date_match = re.search(
+        r"(.*?Date\s*:\s*\d{2}/\d{2}/\d{4})",
+        text,
+        re.DOTALL
+    )
+    if date_match:
+        metadata = date_match.group(1).strip()
+        main_content = text[date_match.end():].strip()
+    else:
+        outcomes = re.split("=.+=", text)
+        main_content = outcomes[-1]
+        metadata = "\n".join(outcomes[:-1])
+
+    return metadata, main_content
 
 def order_extractor(file):
     file_bytes = file.file.read()
