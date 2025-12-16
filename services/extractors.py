@@ -7,14 +7,11 @@ import pdfplumber
 # <----- MAIN Function ----->
 def extractor(file, type: str, category: str):
     match category:
-        case "judgement":
-            if type=="pdf":
-                return pdf_to_json(file)
-            else:
-                return judgement_extractor(file)
-        
         case "order":
-            return order_extractor(file)
+            if type=="pdf":
+                return order_extractor(file)
+            elif type == "json":
+                return judgement_extractor(file)
         
         case "act":
             return act_extractor(file)
@@ -59,43 +56,6 @@ def order_extractor(file):
     return chunks
 
 # <----- JUDGEMENT EXTRACTOR ----->
-def pdf_to_json(file):
-    file_bytes = file.file.read()
-    with pdfplumber.open(BytesIO(file_bytes)) as pdf:
-            text = ""
-            for page in pdf.pages:
-                text += page.extract_text() or ""
-    txt=text.replace("\n"," ")
-    data=json.loads(txt)
-    max_chunk_size = 2000
-    output = []
-    temp_text = ""
-    metadata=get_judgement_metadata(data)
-    output.append(metadata)
-    data = data.get("JudgementText", {}).get("Paragraphs", [])
-
-    for para in data:
-        subparagraphs = para.get("SubParagraphs", [])
-        for i, sub in enumerate(subparagraphs):
-            text = sub.get("Text", "")
-            # add indentation for subpoints
-            if sub.get("IsSub"):
-                text = "\t" + text
-
-            if len(temp_text) + len(text) > max_chunk_size:
-                if temp_text:
-                    output.append(temp_text.strip())
-                temp_text = text
-            else:
-                temp_text += text
-
-    # flush leftover text
-    if temp_text:
-        output.append(temp_text.strip())
-
-    return output
-
-
 def get_judgement_metadata(content:dict):
     Title=content.get("Title")
     Country=content.get("Country",{}).get("Name")

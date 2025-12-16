@@ -1,47 +1,6 @@
 from langchain_core.tools import tool
 
 
-@tool
-def judgement(query:str):
-    '''
-    Use this tool to retrieve or summarize Indian court judgments.
-
-    Includes:
-    - Supreme Court judgments
-    - High Court judgments
-    - Tribunal decisions (if applicable)
-    - Any Court Judgements
-
-    Trigger this tool whenever the user asks about:
-    - Specific case laws or citations
-    - Landmark judgments
-    - Legal precedents in India
-    - Court rulings related to a topic
-
-    Non-Trigger Conditions:Queries About Following:
-    - Central Acts (e.g., IPC, Companies Act, IT Act, GST Act)
-    - State-specific Acts
-    - Explanations of legal sections
-    - Court orders(Any kind of court orders)
-    - Procedural rules governing civil litigation
-    - Legal effects, conditions, or procedural steps under CPC Orders
-
-
-    Example Queries:
-    - "Is there any judgment showing how much period needs to expire for an asset to become npa under sarfaesi act"
-    - "Provide Supreme court judgments discussing the rights of daughters in a coparcenary property."
-    - "First applicant (loan borrower) obtained a loan but the bank didnt get a life insurance policy assigned to bank. Please send citation for the same."
-    - "Under Maharashtra Tenancy and Agricultural Lands Act, 1948 Relating to  Sec. 70 B"
-    - "Please share the case law of Supreme Court Promoter & Builder can not sell common terrace and parking space"
-    - "Witness came in the witnesses box one time and given half evidence but thereafter didnot come   whether the evidence discard or not"
-    - "Between the two wills notary has been same and witness is differed then its must be call the notary for evidence"
-    - "Provide Supreme court judgments discussing the rights of daughters in a coparcenary property."
-    - "I need judgements. Estoppel under SARFASI Act for issuing second notice after withdrawal of proceedings under first notice"
-    - "Judgement revision against interlocutory order of rejection of handwriting expert as defence witness"
-    - "Provide me the latest judgments of Gujarat Hight court on Land Grabing"
-        
-    '''
-    pass 
 
 @tool
 def act(query:str):
@@ -85,30 +44,30 @@ def act(query:str):
 def order(query: str):
 
     """
-    Use this tool to identify, classify, and explain court orders.
+    Use this tool to retrieve or summarize Indian court judgments,identify, classify, and explain court orders.
 
-    Purpose:
-    - To determine what type of order has been passed (e.g., oral order, interim order, final order,
-      procedural order, administrative direction, etc.).
-    - To explain the legal nature, procedural effect, and consequences of orders passed under CPC,
-      CrPC, High Court Rules, or other procedural frameworks.
-    - To provide plain-language summaries of interim or final judicial orders.
-    - To clarify whether an order falls under Civil Procedure Code (CPC) or Criminal Procedure Code (CrPC).
+    Includes:
+    - Supreme Court judgments,order
+    - High Court judgments,order
+    - Tribunal decisions (if applicable)
+    - Any Court Judgements,order
 
-    Trigger Conditions:
-    - Call this tool whenever the user asks about:
-        * The “type” or “classification” of any court order.
-        * Whether an order is CPC, CrPC, or general High Court administrative order.
-        * Meaning of expressions in orders (e.g., "Rule discharged", "Dismissed", "Allowed").
-        * Effect of an oral order or short order passed by any court.
-        * Procedural implications of interim or final orders.
-
-    Non-Trigger Conditions (Do NOT call this tool for the following):
-    - Detailed analysis of case law, judgments, or precedents.
-    - Interpretation of statutory sections of Acts (IPC, Evidence Act, GST Act, etc.).
-    - Summary or review of Supreme Court / High Court judgments.
-    - Legal advice requiring application of precedent rather than explanation of the order itself.
+    Trigger this tool whenever the user asks about:
+    - Specific case laws or citations
+    - Landmark judgments
+    - Legal precedents in India
+    - Court rulings related to a topic 
+    - The “type” or “classification” of any court order.
+    - Whether an order is CPC, CrPC, or general High Court administrative order.
+    - Meaning of expressions in orders (e.g., "Rule discharged", "Dismissed", "Allowed").
+    - Effect of an oral order or short order passed by any court.
+    - Procedural implications of interim or final orders.
     
+    Non-Trigger Conditions:Queries About Following:
+    - Central Acts (e.g., IPC, Companies Act, IT Act, GST Act)
+    - State-specific Acts
+    - Explanations of legal sections
+   
     Example Queries:
     - "Which type of order is this? It only says 'Dismissed. Rule discharged.'"  
     - "Is this order passed under CPC or CrPC?"
@@ -118,6 +77,18 @@ def order(query: str):
     - "What does it mean when a court says 'Notice discharged'?"
     - "Is this order a decreee,judgement, or procedural order?"
     - "Does this order fall under Order 39 CPC or CrPC 482?"
+    - "Is there any judgment showing how much period needs to expire for an asset to become npa under sarfaesi act"
+    - "Provide Supreme court judgments discussing the rights of daughters in a coparcenary property."
+    - "First applicant (loan borrower) obtained a loan but the bank didnt get a life insurance policy assigned to bank. Please send citation for the same."
+    - "Under Maharashtra Tenancy and Agricultural Lands Act, 1948 Relating to  Sec. 70 B"
+    - "Please share the case law of Supreme Court Promoter & Builder can not sell common terrace and parking space"
+    - "Witness came in the witnesses box one time and given half evidence but thereafter didnot come   whether the evidence discard or not"
+    - "Between the two wills notary has been same and witness is differed then its must be call the notary for evidence"
+    - "Provide Supreme court judgments discussing the rights of daughters in a coparcenary property."
+    - "I need judgements. Estoppel under SARFASI Act for issuing second notice after withdrawal of proceedings under first notice"
+    - "Judgement revision against interlocutory order of rejection of handwriting expert as defence witness"
+    - "Provide me the latest judgments of Gujarat Hight court on Land Grabing"
+       
 
     """
     pass

@@ -90,14 +90,23 @@ def search(query: str, collection:str, radius:float) -> str:
         output_fields=["text", "id"]
     )[0]
 
+    document_id=[]
     if documents:
         for doc in documents:
             data=doc.get("entity",doc)
+            document_id.append(data.get('id').split("_@_")[0])            
             print(f"Id: {data.get('id')}\nDistance: {doc.get('distance')}\nContent: {data.get('text')}\n")
             context+= f"\nContext: {data.get('text')}\n"
- 
+    document_id=set(document_id)
+    document_id=list(document_id)
     if context:
-        return context 
+        return context,document_id 
     else:
         print("No Context Passed")
         return None
+
+def delete_colletion():
+    collections= milvus_client.list_collections()
+    for collection in collections:
+        milvus_client.drop_collection(collection)
+        print(f"Dropped {collection}")
