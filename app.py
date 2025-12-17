@@ -50,7 +50,7 @@ async def chat(request: dict =  Body(...)):
     query = request.get("query")
     # tool_llama = llm_with_tool(act, order)
     chat_history = request.get("chat_history", [])
-    # current_intent = request.get("intent")
+    current_intent = request.get("intent")
     # prompt = f"""You are an Legal AI assistant with access to the following tools:
     # 1. act: Use this tool to provide details about Indian Acts and their sections.
     # 2. order: Use this tool to fetch or explain Indian court orders or judgements.
@@ -104,19 +104,19 @@ async def chat(request: dict =  Body(...)):
         if(listres.tool_calls[0]['name']=="followup_handler"):
             query=listres.tool_calls[0]['args']['query']
             print(f"Restructured Query: {query}")
-            context = search(query=query,collection="order",radius=0.6)
+            context = search(query=query,collection=current_intent,radius=0.6)
     else:
-            context = search(query=query,collection="order",radius=0.6)
+            context = search(query=query,collection=current_intent,radius=0.6)
     if(context):
         ids=context[1]
         response = llm(query=query,chat_history=chat_history, context=context[0])
         response=list(response)
         response[1] = response [1]  + list_token
-        response.append("order")
+        response.append(current_intent)
         response.append(ids)
         return JSONResponse(content=response, status_code=200)
     else:
-        response=["Sorry, but I couldn't find any relevant information related to your query. Kindly provide additional details or clarify your request so I may assist you accurately.",list_token,"order",[]]
+        response=["Sorry, but I couldn't find any relevant information related to your query. Kindly provide additional details or clarify your request so I may assist you accurately.",list_token,current_intent,[]]
         return JSONResponse(content=response,status_code=200)
         # else:
         #     return ["As a Legal Assistant, my role is to provide information and guidance on legal matters.\n\nTo answer your question, I would need to provide information outside of my designated scope. Instead, I would like to inform you to ask a question relevant to a legal context, such as contract law, intellectual property, or any other legal topic. I'll be happy to assist you with that.\n\nPlease ask a question related to law, and I'll do my best to provide a helpful response.",initial_token,current_intent]
