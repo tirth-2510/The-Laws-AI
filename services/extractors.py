@@ -1,4 +1,4 @@
-from fastapi import HTTPException
+from fastapi.responses import JSONResponse
 import json
 from io import BytesIO
 import re
@@ -17,7 +17,7 @@ def extractor(file, type: str, category: str):
             return act_extractor(file)
 
         case _:
-            raise HTTPException(detail="Unsupported file format!!!", status_code=400)
+            raise JSONResponse(content="Unsupported file format!!!", status_code=400)
 
 # <----- ORDER EXTRACTOR ----->
 def clean_repeated_noise(text: str) -> str:
@@ -60,11 +60,21 @@ def order_extractor(file):
             text += page.extract_text() or ""
     cleaned_text = cleanup_order_text(text)
     max_chunk_size=2000
+    metadata_chunk_size=3000
     sentences = re.split(r'(?<=[.!?]) +', cleaned_text[1]) 
     chunks = []
     temp_text = ""
-    chunks.append(cleaned_text[0])
+    for char in cleaned_text[0]:
+        if len(temp_text) + 1 > metadata_chunk_size:
+            chunks.append(temp_text.strip())
+            temp_text = char
+        else:
+            temp_text += char
 
+    if temp_text:
+        chunks.append(temp_text.strip())
+
+    temp_text=""
     for sentence in sentences:
         if len(temp_text) + len(sentence) > max_chunk_size:
             if temp_text:  
@@ -169,12 +179,22 @@ def judgement_extractor(file):
     content = json.loads(file_bytes)
 
     max_chunk_size = 2000
+    metadata_chunk_size=3000
     output = []
     temp_text = ""
     metadata=get_judgement_metadata(content)
-    output.append(metadata)
-    data = content.get("JudgementText", {}).get("Paragraphs", [])
+    for char in metadata:
+        if len(temp_text) + 1 > metadata_chunk_size:
+            output.append(temp_text.strip())
+            temp_text = char
+        else:
+            temp_text += char
 
+    if temp_text:
+        output.append(temp_text.strip())
+
+    data = content.get("JudgementText", {}).get("Paragraphs", [])
+    temp_text=""
     for para in data:
         subparagraphs = para.get("SubParagraphs", [])
         for i, sub in enumerate(subparagraphs):
