@@ -104,9 +104,9 @@ async def chat(request: dict =  Body(...)):
         if(listres.tool_calls[0]['name']=="followup_handler"):
             query=listres.tool_calls[0]['args']['query']
             print(f"Restructured Query: {query}")
-            context = search(query=query,collection="order",islist=False,radius=0.6)
+            context = search(query=query,collection="order",radius=0.6)
     else:
-            context = search(query=query,collection="order",islist=False,radius=0.6)
+            context = search(query=query,collection="order",radius=0.6)
     if(context):
         ids=context[1]
         response = llm(query=query,chat_history=chat_history, context=context[0])
