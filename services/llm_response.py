@@ -5,7 +5,7 @@ from utils.llms import get_llm
 def llm(query: str, chat_history: list[dict], context: str = "No Context Found Do not response") -> tuple[str, str]:
     prompt = Prompt.response_prompt(context=context)
     promptm={"role":"user","content":prompt}
-    chat_history.insert(0,promptm)
+    chat_history.append(promptm)
     querym={"role":"user","content":query}
     chat_history.append(querym)
     messages = chat_history
