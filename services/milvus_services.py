@@ -1,4 +1,4 @@
-from pymilvus import MilvusClient, CollectionSchema, FieldSchema, DataType
+from pymilvus import MilvusClient, CollectionSchema, FieldSchema, DataType,AnnSearchRequest,Function,FunctionType,RRFRanker
 from services.extractors import extractor
 from services.embedder import generate_embeddings, search_embeddings
 from utils.chunker import  create_ids
@@ -9,17 +9,26 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+bm25_function = Function(
+    name="text_bm25_emb",
+    input_field_names=["text"], 
+    output_field_names=["sparse"],
+    function_type=FunctionType.BM25, 
+)
 schema = CollectionSchema(
     fields=[
         FieldSchema(name="id", dtype=DataType.VARCHAR, is_primary=True, auto_id=False, max_length=50),
         FieldSchema(name="vector", dtype=DataType.FLOAT_VECTOR, dim=768, metric_type="COSINE"),
-        FieldSchema(name="text", dtype=DataType.VARCHAR, max_length=65535),
+        FieldSchema(name="text", dtype=DataType.VARCHAR, max_length=65535, enable_analyzer=True),
+        FieldSchema(name="sparse", dtype=DataType.SPARSE_FLOAT_VECTOR,metric_type="COSINE")
     ],
     description="Collection for storing text embeddings",
 )
+schema.add_function(bm25_function)
 
 milvus_client = MilvusClient(uri=os.getenv("ZILLIS_URI_ENDPOINT"), token=os.getenv("ZILLIS_TOKEN"), password=os.getenv("ZILLIS_PASSWORD"), db_name=os.getenv("ZILLIS_DB_NAME"))
 # milvus_client = MilvusClient(uri=os.getenv("MILVUS_URI"), db_name=os.getenv("MILVUS_DB_NAME"))
+                
 def create_collection(collection: str) -> dict:
     index_params = milvus_client.prepare_index_params()
 
@@ -29,6 +38,16 @@ def create_collection(collection: str) -> dict:
         metric_type="COSINE",
         efConstruction=256,
         M=64
+    )
+    index_params.add_index(
+        field_name="sparse",
+        index_type="SPARSE_INVERTED_INDEX",
+        metric_type="BM25",
+        params={
+            "inverted_index_algo": "DAAT_MAXSCORE",
+            "bm25_k1": 1.2, #controls frequency saturation
+            "bm25_b": 0.75 #controls document length nomalization
+        }
     )
 
     try:
@@ -72,31 +91,43 @@ def insert(collection: str, file_name: str,  file_type: str, file) -> dict | Non
 def search(query: str,collection:str,radius:float) -> str:
     search_query = search_embeddings(query=query)
 
-    search_params = {
-        "field_name":"vector", 
-        "index_type":"HNSW",
-        "metric_type":"COSINE",
-        "ef":512,
-        "M":80,
-        "radius": radius
-    }
     context=""
-    
-    documents = milvus_client.search(
-        collection_name=collection, 
-        data=[search_query], 
-        search_params=search_params,
-        limit=5, 
-        output_fields=["text", "id"]
-    )[0]
 
+    search_param_1 = {
+        "data": [search_query],
+        "anns_field": "vector",
+        "param": {"efSearch": 512},
+        "limit": 2
+    }
+    request_1 = AnnSearchRequest(**search_param_1)
+
+    search_param_2 = {
+        "data": [query],
+        "anns_field": "sparse",
+        "param": {"drop_ratio_search": 0.0},
+        "limit": 2
+    }
+    request_2 = AnnSearchRequest(**search_param_2)
+    
+    req=[request_1,request_2]
+    ranker = RRFRanker(100)
+
+    documents = milvus_client.hybrid_search(
+    collection_name=collection,
+    reqs=req,
+    ranker=ranker,
+    limit=5,
+    output_fields=["text","id"]
+)
+    
     document_id=[]
     if documents:
-        for doc in documents:
-            data=doc.get("entity",doc)
-            document_id.append(data.get('id').split("_@_")[0])            
-            print(f"Id: {data.get('id')}\nDistance: {doc.get('distance')}\nContent: {data.get('text')}\n")
-            context+= f"\nContext: {data.get('text')}\n"
+        for document in documents:
+            for doc in document:
+                data=doc.get("entity",doc)
+                document_id.append(data.get('id').split("_@_")[0])            
+                print(f"Id: {data.get('id')}\nDistance: {doc.get('distance')}\nContent: {data.get('text')}\n")
+                context+= f"\nContext: {data.get('text')}\n"
     document_id=set(document_id)
     document_id=list(document_id)
     if context:
