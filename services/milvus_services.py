@@ -88,7 +88,7 @@ def insert(collection: str, file_name: str,  file_type: str, file) -> dict | Non
     print("Response from Milvus:", response)
     return response if response else None
 
-def search(query: str,collection:str,radius:float) -> str:
+def search(query: str,collection:str) -> str:
     search_query = search_embeddings(query=query)
 
     context=""
